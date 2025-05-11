@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全认证系统 - 最终稳定版</title>
+    <style>
+        /* 核心界面样式 */
+        :root {
+            --primary-color: #2196F3;
+            --error-color: #f44336;
+            --success-color: #4CAF50;
+        }
+
+        body {
+            margin: 0;
+            background: #f5f5f5;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        /* 启动加载界面 */
+        #bootScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .boot-progress {
+            width: 280px;
+            height: 6px;
+            background: #eee;
+            border-radius: 3px;
+            margin: 20px 0;
+        }
+
+        .boot-progress-bar {
+            height: 100%;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        /* 主认证界面 */
+        #authContainer {
+            display: none;
+            width: 400px;
+            margin: 50px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 启动加载界面 -->
+    <div id="bootScreen">
+        <h2>系统初始化中...</h2>
+        <div class="boot-progress">
+            <div class="boot-progress-bar" id="bootProgress"></div>
+        </div>
+        <div id="bootStatus">正在验证核心组件</div>
+    </div>
+
+    <!-- 主认证界面 -->
+    <div id="authContainer">
+        <form id="authForm">
+            <input class="input-field" type="text" placeholder="用户名" required>
+            <input class="input-field" type="password" placeholder="密码" required>
+            <button type="submit" style="margin-top:20px" class="primary-btn">登录系统</button>
+        </form>
+    </div>
+
+<script>
+// 系统启动处理器
+class SystemBootHandler {
+    static async initialize() {
+        try {
+            await this.executePhase('环境验证', 20, this.checkEnvironment);
+            await this.executePhase('存储初始化', 30, this.initStorage);
+            await this.executePhase('界面加载', 40, this.loadInterface);
+            await this.executePhase('安全策略', 10, this.applySecurity);
+            this.completeBoot();
+        } catch (error) {
+            this.handleFatalError(error);
+        }
+    }
+
+    static async executePhase(name, weight, task) {
+        this.updateStatus(`▶️ 正在执行: ${name}`);
+        try {
+            await task();
+            this.updateProgress(weight);
+        } catch (error) {
+            console.error(`[启动失败] 阶段: ${name}`, error);
+            throw new Error(`${name}失败: ${error.message}`);
+        }
+    }
+
+    static checkEnvironment() {
+        return new Promise((resolve, reject) => {
+            // 关键API检测
+            if (!window.Promise || !window.localStorage) {
+                reject(new Error('浏览器环境不兼容'));
+            }
+            resolve();
+        });
+    }
+
+    static initStorage() {
+        if (!localStorage.getItem('sysUsers')) {
+            const defaultUsers = [{
+                username: 'admin',
+                password: this.hash('admin123'),
+                role: 'admin'
+            }];
+            localStorage.setItem('sysUsers', JSON.stringify(defaultUsers));
+        }
+    }
+
+    static loadInterface() {
+        return new Promise((resolve) => {
+            requestAnimationFrame(() => {
+                document.getElementById('authContainer').style.display = 'block';
+                resolve();
+            });
+        });
+    }
+
+    static applySecurity() {
+        if (window.trustedTypes) {
+            trustedTypes.createPolicy('default', {
+                createHTML: s => s.replace(/</g, '&lt;')
+            });
+        }
+    }
+
+    static updateProgress(percent) {
+        const bar = document.getElementById('bootProgress');
+        const current = parseFloat(bar.style.width) || 0;
+        const target = current + percent;
+        
+        const animate = () => {
+            const step = Math.min(current + 1, target);
+            bar.style.width = `${step}%`;
+            if (step < target) requestAnimationFrame(animate);
+        };
+        requestAnimationFrame(animate);
+    }
+
+    static updateStatus(text) {
+        document.getElementById('bootStatus').textContent = text;
+    }
+
+    static completeBoot() {
+        document.getElementById('bootScreen').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('bootScreen').remove();
+        }, 500);
+    }
+
+    static handleFatalError(error) {
+        document.getElementById('bootScreen').innerHTML = `
+            <h2 style="color:${var(--error-color)}">系统启动失败</h2>
+            <p>${error.message}</p>
+            <button onclick="location.reload()">重新加载</button>
+        `;
+    }
+
+    static hash(data) {
+        return btoa(encodeURIComponent(data));
+    }
+}
+
+// 认证系统核心
+class AuthSystem {
+    static init() {
+        document.getElementById('authForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleAuth(e.target);
+        });
+    }
+
+    static async handleAuth(form) {
+        const data = new FormData(form);
+        const users = JSON.parse(localStorage.getItem('sysUsers'));
+        
+        const validUser = users.find(u => 
+            u.username === data.get('username') &&
+            u.password === this.hash(data.get('password'))
+        );
+
+        if (validUser) {
+            window.location.href = '/dashboard';
+        } else {
+            alert('认证信息错误');
+        }
+    }
+
+    static hash(data) {
+        return btoa(encodeURIComponent(data));
+    }
+}
+
+// 安全启动流程
+document.addEventListener('DOMContentLoaded', () => {
+    SystemBootHandler.initialize().then(() => {
+        AuthSystem.init();
+    });
+});
+</script>
+</body>
+</html>
