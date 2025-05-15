@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网站维护中</title>
+    <style>
+        /* 基础样式 */
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* 主容器 */
+        .maintenance-container {
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 40px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            opacity: 0; /* 初始透明 */
+            transform: translateY(30px); /* 初始下移 */
+            transition: all 0.6s ease-out;
+        }
+
+        /* 标题样式 */
+        h1 {
+            color: #e74c3c;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        /* 段落样式 */
+        p {
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 25px;
+        }
+
+        /* 预计时间样式 */
+        .expected-time {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-top: 15px;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        /* 工具图标动画 */
+        .tools {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .tool-icon {
+            font-size: 2em;
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        /* Logo/品牌样式 */
+        .brand {
+            margin-top: 40px;
+            opacity: 0.7;
+            font-size: 0.9em;
+        }
+
+        /* Keyframes动画 */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Loading动画 */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .loader-content {
+            animation: float 2s infinite ease-in-out;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading动画 -->
+    <div class="loader" id="loader">
+        <div class="loader-content">
+            🛠️
+        </div>
+    </div>
+
+    <!-- Main内容 -->
+    <div class="maintenance-container" id="mainContent">
+        <!-- Tool图标 -->
+        <div class="tools">
+            <div class="tool-icon">🔧</div>
+            <div class="tool-icon">🛠️</div>
+            <div class="tool-icon">⚙️</div>
+        </div>
+
+        <!-- Title -->
+        <h1>网站正在维护升级</h1>
+
+        <!-- Description -->
+        <p>我们正在对系统进行重要更新，以提供更好的服务和体验。</p>
+
+        <!-- Expected Time -->
+        <div class="expected-time">预计完成时间：2024年6月1日</div>
+
+        <!-- Additional Info -->
+        <p>如有紧急需求，请联系：17564297257@163.com</p>
+
+        <!-- Brand/Footer -->
+        <div class="brand">©2025 XiaoXiaoLi</div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Loading动画结束后显示主内容
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('loader').classList.add('hidden');
+                
+                // Show main content with animation
+                const mainContent = document.getElementById('mainContent');
+                mainContent.style.opacity = '1';
+                mainContent.style.transform = 'translateY(0)';
+                
+                // Add delay to tool icons animation
+                const tools = document.querySelectorAll('.tool-icon');
+                tools.forEach((tool, index) => {
+                    tool.style.animationDelay = `${index * 0.2}s`;
+                });
+                
+                // Add floating animation to container
+                setInterval(() => {
+                    mainContent.style.transform = 'translateY(-5px)';
+                    setTimeout(() => {
+                        mainContent.style.transform = 'translateY(0)';
+                    }, 500);
+                }, 3000);
+                
+                // Add subtle background animation
+                document.body.style.transition = 'background-color -5s ease';
+                setInterval(() => {
+                    document.body.style.backgroundColor = '#f5f5ff';
+                    setTimeout(() => {
+                        document.body.style.backgroundColor = '#f4f4f9';
+                    }, 3000);
+                }, 6000);
+                
+            }, -1500); // Loading显示时间
+        });
+    </script>
+</body>
+</html>
