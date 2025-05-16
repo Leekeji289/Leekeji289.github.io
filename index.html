@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小小利官方网站</title>
+    <style>
+        /* ==== 全局样式 ==== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+        }
+
+        /* ==== 维护页面 ==== */
+        .maintenance-mode {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: #f4f4f9;
+            z-index: 1000;
+            transition: all 0.6s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .maintenance-container {
+            width: 90%;
+            max-width: 800px;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .tools {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .tool-icon {
+            font-size: 2em;
+            animation: bounce 2s infinite;
+        }
+
+        /* ==== 公司网站 ==== */
+        .company-site {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .navbar {
+            background: #2c3e50;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s;
+        }
+
+        .banner {
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                        url('background.jpg') center/cover;
+            color: white;
+            padding: 8rem 2rem;
+            text-align: center;
+        }
+
+        .services {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .service-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        /* ==== 验证码系统 ==== */
+        .code-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .code-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 320px;
+            text-align: center;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            transition: 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .code-inputs {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+
+        .code-input {
+            width: 50px;
+            height: 60px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 24px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .code-input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        .error-message {
+            color: #ff0000;
+            height: 20px;
+            visibility: hidden;
+        }
+
+        /* ==== 动画 ==== */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .active-site .maintenance-mode {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+
+        .active-site .company-site {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- 维护页面 -->
+    <div class="maintenance-mode">
+        <div class="maintenance-container">
+            <div class="tools">
+                <div class="tool-icon">🔧</div>
+                <div class="tool-icon">🛠️</div>
+                <div class="tool-icon">⚙️</div>
+            </div>
+            
+            <h1 style="color: #e74c3c;">网站维护升级中</h1>
+            <p>我们正在全力优化系统，为您提供更好的服务</p>
+            
+            <button onclick="showCodeModal()" 
+                style="
+                    margin-top: 20px;
+                    padding: 12px 30px;
+                    background: #3498db;
+                    color: white;
+                    border: none;
+                    border-radius: 50px;
+                    cursor: pointer;
+                ">
+                前往测试版
+            </button>
+            
+            <div style="margin-top: 30px;">
+                <p>预计完成时间：2025年6月1日</p>
+                <p style="margin-top: 15px; font-size: 0.9em; color: #666;">
+                    如有紧急问题请联系：17564297257@163.com
+                </p>
+                <div class="brand-info" style="
+                    margin-top: 40px;
+                    padding-top: 20px;
+                    border-top: 1px solid #eee;
+                    color: #888;
+                    font-size: 0.8em;
+                ">
+                    ©2025 小小利Xiaoxiaoli 版权所有
+                    <div style="margin-top: 5px;">沪ICP备114514号</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 验证码弹窗 -->
+    <div class="code-modal" id="codeModal">
+        <div class="code-container">
+            <span class="close-btn" onclick="closeCodeModal()">×</span>
+            <h3 style="margin-bottom: 20px;">输入验证码</h3>
+            <div class="code-inputs">
+                <input type="password" class="code-input" maxlength="1" 
+                    id="code1" oninput="handleInput(1, this)">
+                <input type="password" class="code-input" maxlength="1"
+                    id="code2" oninput="handleInput(2, this)">
+                <input type="password" class="code-input" maxlength="1"
+                    id="code3" oninput="handleInput(3, this)">
+                <input type="password" class="code-input" maxlength="1"
+                    id="code4" oninput="handleInput(4, this)">
+            </div>
+            <div class="error-message" id="errorMsg">验证码错误！</div>
+        </div>
+    </div>
+
+    <!-- 公司网站 -->
+    <div class="company-site">
+        <nav class="navbar">
+            <div class="nav-links">
+                <a href="#home">这里就是首页</a>
+                <a href="#services">这里没有服务</a>
+                <a href="#about">这里没有关于</a>
+                <a href="#contact">这里没有联系</a>
+            </div>
+        </nav>
+
+        <section class="banner">
+            <h1>欢迎访问小小利官方网站</h1>
+            <p>小小利创建未来</p>
+        </section>
+
+        <div class="services">
+            <div class="service-card">
+                <h3>🎮游戏层面</h3>
+                <p>跨平台应用卸载方案</p>
+            </div>
+            <div class="service-card">
+                <h3>🌐 网站建设</h3>
+                <p>垃圾网站定制开发</p>
+            </div>
+            <div class="service-card">
+                <h3>🤖 人工智障</h3>
+                <p>智能算法与智障学习</p>
+            </div>
+        </div>
+
+        <footer style="
+            background: #2c3e50;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 4rem;
+        ">
+            <p>📧 contact@example.com</p>
+            <p>© 2025 小小利Xiaoxiaoli</p>
+        </footer>
+    </div>
+<!-- 在<body>标签内添加 -->
+<div class="audio-controls">
+    <audio id="bgm" loop>
+        <source src="./music.mp3" type="audio/mpeg">
+    </audio>
+    <button id="muteBtn"></button> <!-- 注意此处移除默认图标 -->
+</div>
+
+<style>
+    /* 修复后的样式 */
+    .audio-controls {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        z-index: 1000;
+    }
+
+    #muteBtn {
+        width: 40px;
+        height: 40px;
+        border: none;
+        background: rgba(255,255,255,0.9);
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 18px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        transition: all 0.3s;
+        /* 通过伪元素统一显示图标 */
+        &::before {
+            content: "🔊";
+        }
+        
+        &.muted::before {
+            content: "🔇";
+        }
+    }
+
+    #muteBtn:hover {
+        transform: scale(1.1);
+    }
+</style>
+
+<script>
+    // 修复后的逻辑
+    const audio = document.getElementById('bgm');
+    const muteBtn = document.getElementById('muteBtn');
+
+    // 初始化静音状态
+    audio.volume = 0.5;
+    audio.muted = false;
+
+    // 自动播放逻辑
+    document.addEventListener('click', () => {
+        audio.play().catch(console.error);
+    }, { once: true });
+
+    // 静音切换
+    muteBtn.addEventListener('click', () => {
+        audio.muted = !audio.muted;
+        muteBtn.classList.toggle('muted');
+    });
+</script>
+
+
+
+    <script>
+        // 验证码系统
+        let inputCode = '';
+        const CORRECT_CODE = '9496';
+
+        function showCodeModal() {
+            document.getElementById('codeModal').style.display = 'flex';
+            document.querySelectorAll('.code-input').forEach(input => input.value = '');
+            inputCode = '';
+            document.getElementById('errorMsg').style.visibility = 'hidden';
+            document.getElementById('code1').focus();
+        }
+
+        function closeCodeModal() {
+            document.getElementById('codeModal').style.display = 'none';
+        }
+
+        function handleInput(currentIndex, inputElement) {
+            const value = inputElement.value;
+            const inputs = document.querySelectorAll('.code-input');
+            
+            // 自动跳转下一个输入框
+            if (value.length === 1 && currentIndex < 4) {
+                inputs[currentIndex].focus();
+            }
+
+            // 收集输入
+            inputCode = Array.from(inputs).map(input => input.value).join('');
+            
+            // 自动验证
+            if (inputCode.length === 4) {
+                validateCode();
+            }
+        }
+
+        function validateCode() {
+            if (inputCode === CORRECT_CODE) {
+                closeCodeModal();
+                switchToCompanySite();
+            } else {
+                document.getElementById('errorMsg').style.visibility = 'visible';
+                document.querySelectorAll('.code-input').forEach(input => {
+                    input.style.borderColor = '#ff0000';
+                });
+                setTimeout(() => {
+                    document.getElementById('errorMsg').style.visibility = 'hidden';
+                    document.querySelectorAll('.code-input').forEach(input => {
+                        input.style.borderColor = '#ddd';
+                        input.value = '';
+                    });
+                    inputCode = '';
+                    document.getElementById('code1').focus();
+                }, 1000);
+            }
+        }
+
+        // 切换网站
+        function switchToCompanySite() {
+            document.body.classList.add('active-site');
+            window.scrollTo(0, 0);
+        }
+
+        // 支持浏览器后退按钮
+        window.addEventListener('popstate', function(event) {
+            if (location.hash === '#company') {
+                document.body.classList.add('active-site');
+            } else {
+                document.body.classList.remove('active-site');
+            }
+        });
+    </script>
+</body>
+</html>
